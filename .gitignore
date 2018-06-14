@@ -1,0 +1,12 @@
+.DS_Store
+.idea/
+.vscode/
+.ipynb_checkpoints/
+
+*.log
+*.joblib
+__pycache__
+*.hdf5
+*.npy
+*.pyc
+data.txt
