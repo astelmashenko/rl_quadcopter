@@ -35,6 +35,7 @@ class Actor:
         net = layers.Dense(units=64, activation='relu')(net)
         net = layers.Dense(units=32, activation='relu')(net)
 
+        # TODO:
         # Try different layer sizes, activations, add batch normalization, regularizers, etc.
 
         # Add final output layer with sigmoid activation

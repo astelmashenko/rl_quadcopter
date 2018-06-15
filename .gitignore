@@ -10,3 +10,5 @@ __pycache__
 *.npy
 *.pyc
 data.txt
+data.csv
+
