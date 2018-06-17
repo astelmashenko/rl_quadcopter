@@ -1,5 +1,7 @@
 import numpy as np
 from physics_sim import PhysicsSim
+import logging
+from utils import eucl_distance, udacity_distance
 
 
 class Task:
@@ -28,9 +30,15 @@ class Task:
         # Goal
         self.target_pos = target_pos if target_pos is not None else np.array([0., 0., 10.])
 
+    def distance(self):
+        return udacity_distance(self.sim.pose[:3], self.target_pos)
+
     def get_reward(self):
         """Uses current pose of sim to return reward."""
-        reward = 1. - .3 * (abs(self.sim.pose[:3] - self.target_pos)).sum()
+        reward = 1. - .3 * self.distance()
+        if (1 - reward) <= 1:
+            reward += 5 * reward
+        logging.info('Reward: %s', reward)
         return reward
 
     def step(self, rotor_speeds):
