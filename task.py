@@ -32,6 +32,7 @@ class Task:
 
     def distance(self):
         return udacity_distance(self.sim.pose[:3], self.target_pos)
+        #return eucl_distance(self.sim.pose[:3], self.target_pos)
 
     def get_reward(self):
         """Uses current pose of sim to return reward."""
