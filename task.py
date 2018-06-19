@@ -30,16 +30,21 @@ class Task:
         # Goal
         self.target_pos = target_pos if target_pos is not None else np.array([0., 0., 10.])
 
+        #
+        self.dist = eucl_distance(self.sim.pose[:3], self.target_pos)
+
     def distance(self):
         return udacity_distance(self.sim.pose[:3], self.target_pos)
-        #return eucl_distance(self.sim.pose[:3], self.target_pos)
+
+    def eucl_distance(self):
+        return eucl_distance(self.sim.pose[:3], self.target_pos)
 
     def get_reward(self):
         """Uses current pose of sim to return reward."""
-        reward = 1. - .3 * self.distance()
+        dist = self.distance()
+        reward = 1. - .3 * dist
         if (1 - reward) <= 1:
             reward += 5 * reward
-        logging.info('Reward: %s', reward)
         return reward
 
     def step(self, rotor_speeds):
@@ -50,6 +55,7 @@ class Task:
             done = self.sim.next_timestep(rotor_speeds)  # update the sim pose and velocities
             reward += self.get_reward()
             pose_all.append(self.sim.pose)
+        self.dist = eucl_distance(self.sim.pose[:3], self.target_pos)
         next_state = np.concatenate(pose_all)
         return next_state, reward, done
 
@@ -57,4 +63,5 @@ class Task:
         """Reset the sim to start a new episode."""
         self.sim.reset()
         state = np.concatenate([self.sim.pose] * self.action_repeat)
+        self.dist = eucl_distance(self.sim.pose[:3], self.target_pos)
         return state

@@ -31,12 +31,12 @@ class Actor:
         states = layers.Input(shape=(self.state_size,), name='states')
 
         # Add hidden layers
-        net = layers.Dense(units=32, activation='relu')(states)
+        net = layers.Dense(units=64, activation='relu')(states)
         net = layers.BatchNormalization()(net)
         net = layers.Dense(units=64, activation='relu')(net)
         net = layers.BatchNormalization()(net)
-        net = layers.Dense(units=32, activation='relu')(net)
-        net = layers.BatchNormalization()(net)
+        # net = layers.Dense(units=32, activation='relu')(net)
+        # net = layers.BatchNormalization()(net)
 
         # Try different layer sizes, activations, add batch normalization, regularizers, etc.
 
