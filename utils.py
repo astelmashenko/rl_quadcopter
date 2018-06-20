@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
 
 
 def udacity_distance(x, y):
@@ -11,40 +12,75 @@ def eucl_distance(x, y):
 
 
 def hover_reward(pose, ang_pose, v, ang_v, target_pose):
-    xy_reward = (abs(pose[:2] - target_pose[:2])).sum()
+    xy_reward = abs(pose[:2] - target_pose[:2]).sum()
     # reward for to be above target
-    z_reward = 2*abs(pose[2] - target_pose[2]).sum()
+    z_reward = abs(pose[2] - target_pose[2]).sum()
 
     z_v = v[2]
 
     xy_v = v[:2] / 2.
-    phi_theta_v = abs(ang_v[:2]).sum()
+    ang_xy_v = abs(ang_v[:2]).sum()
     ang_pose = abs(ang_pose / (3 * 2 * np.pi)).sum()
 
     reward = 0
-
-    eucl_dist = eucl_distance(pose, target_pose)
+    # np.clip(, -1, 1)
+    # eucl_dist = eucl_distance(pose, target_pose)
     # penalize for distance increasing
-    reward += 1. - 0.3 * eucl_dist
+    # reward += np.clip(5 * (1. - 2. * eucl_dist), -5, 5)
 
     # z distance
-    reward += 1 - 0.3 * z_reward
+    reward += np.clip(10 * (1 - 3. * z_reward), -1, 10)
     # xy distance
-    reward += 1 - 0.3 * xy_reward
+    reward += np.clip(3 * (1 - 2. * xy_reward), -1, 3)
 
     # velocity
     # z velocity
-    reward += z_v
+    reward += np.clip(0.5 * z_v, -3, 5)  # np.clip(10 * (1 - 3.0 * z_v), 10, -10)
     # xy velocity
-    #reward -= abs(xy_v).sum()
+    # reward -= abs(xy_v).sum()
 
     # angles
-    reward -= 5 * ang_pose
+    reward += np.clip(1 - 0.8 * ang_pose, -1, 1)
 
     # angle velocities
-    #reward -= phi_theta_v
+    # reward -= np.clip(ang_xy_v, -1, 1)
+    reward += np.clip(0.5 * ang_xy_v, -3, 5)
 
-    return np.clip(reward, -2, 2)
+    # return np.clip(reward, -1, 1)
+    return reward
+
+
+if __name__ == '__main__':
+    data = pd.read_csv('data.csv')
+    cols = ['x', 'y', 'z',
+            'phi', 'theta', 'psi',
+            'x_velocity', 'y_velocity', 'z_velocity',
+            'phi_velocity', 'theta_velocity', 'psi_velocity']
+    a = data.iloc[[11]][cols].values.tolist()[0]
+    b = data.iloc[[12]][cols].values.tolist()[0]
+
+    print(hover_reward(np.array(a[0:3]),
+                       np.array(a[3:6]),
+                       np.array(a[6:9]),
+                       np.array(a[9:12]),
+                       np.array([0., 0., 10.])))
+
+    print(hover_reward(np.array(b[0:3]),
+                       np.array(b[3:6]),
+                       np.array(b[6:9]),
+                       np.array(b[9:12]),
+                       np.array([0., 0., 10.])))
+
+    # print(hover_reward(np.array([-1.729678297, -0.0012487256, 9.7895324748]),
+    #                    np.array([6.2818577926, 3.6706919437, 3.5015792962]),
+    #                    np.array([-7.0731331709, -0.003506869, -8.2229779699]),
+    #                    np.array([-0.0053780827, -14.0411851482, -46.3242552138]),
+    #                    np.array([0., 0., 10.])))
+    # print(hover_reward(np.array([-2.1341031989, -0.0019159375, 9.2265339975]),
+    #                    np.array([6.2815543693, 0.5227153292, 2.2772053046]),
+    #                    np.array([-6.8387585351, -0.0125357532, -10.4270839967]),
+    #                    np.array([-0.0044241086, -37.2056547725, -43.3475728102]),
+    #                    np.array([0., 0., 10.])))
 
 
 def plots(results):

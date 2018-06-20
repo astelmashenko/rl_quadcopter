@@ -22,7 +22,7 @@ class Task:
         self.action_repeat = 3
 
         self.state_size = self.action_repeat * 6
-        self.action_low = 300  # 0
+        self.action_low = 50  # 0
         self.action_high = 1500  # 900
         self.action_size = 4
 
@@ -68,7 +68,7 @@ class Task:
 
     def get_reward(self):
         if self.check_boundaries():
-            return -1
+            return -100
         return hover_reward(self.sim.pose[:3], self.sim.pose[3:], self.sim.v, self.sim.angular_v, self.target_pos)
 
     def get_reward1(self):
