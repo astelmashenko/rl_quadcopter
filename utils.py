@@ -32,11 +32,11 @@ def hover_reward(pose, ang_pose, v, ang_v, target_pose):
     # reward += np.clip(5 * (1. - 2. * eucl_dist), -5, 5)
 
     # z distance
-    reward += np.clip((2 - 2.4 * z_reward), -0.2, 2)
+    reward += np.clip((2 - 1.9 * z_reward), -0.4, 1.5)
     # xy distance
     # reward += np.clip(5 * (1 - 2. * xy_reward), -4, 3)
-    reward += np.clip((2 - 2.4 * x_reward), -0.2, 2)
-    reward += np.clip((2 - 2.4 * y_reward), -0.2, 2)
+    reward += np.clip((2 - 1.9 * x_reward), -0.4, 1.5)
+    reward += np.clip((2 - 1.9 * y_reward), -0.4, 1.5)
 
     # velocity
     # z velocity
