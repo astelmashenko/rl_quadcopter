@@ -29,13 +29,13 @@ def hover_reward(pose, ang_pose, v, ang_v, target_pose):
     # reward += np.clip(5 * (1. - 2. * eucl_dist), -5, 5)
 
     # z distance
-    reward += np.clip(10 * (1 - 3. * z_reward), -1, 10)
+    reward += np.clip(10 * (1 - 3. * z_reward), -5, 10)
     # xy distance
-    reward += np.clip(3 * (1 - 2. * xy_reward), -1, 3)
+    reward += np.clip(5 * (1 - 2. * xy_reward), -5, 3)
 
     # velocity
     # z velocity
-    reward += np.clip(0.5 * z_v, -3, 5)  # np.clip(10 * (1 - 3.0 * z_v), 10, -10)
+    reward += np.clip(0.5 * z_v, -3, 3)  # np.clip(10 * (1 - 3.0 * z_v), 10, -10)
     # xy velocity
     # reward -= abs(xy_v).sum()
 
@@ -44,7 +44,7 @@ def hover_reward(pose, ang_pose, v, ang_v, target_pose):
 
     # angle velocities
     # reward -= np.clip(ang_xy_v, -1, 1)
-    reward += np.clip(0.5 * ang_xy_v, -3, 5)
+    reward += np.clip(0.5 * ang_xy_v, -3, 3)
 
     # return np.clip(reward, -1, 1)
     return reward
@@ -56,8 +56,8 @@ if __name__ == '__main__':
             'phi', 'theta', 'psi',
             'x_velocity', 'y_velocity', 'z_velocity',
             'phi_velocity', 'theta_velocity', 'psi_velocity']
-    a = data.iloc[[11]][cols].values.tolist()[0]
-    b = data.iloc[[12]][cols].values.tolist()[0]
+    a = data.iloc[[83]][cols].values.tolist()[0]
+    b = data.iloc[[1]][cols].values.tolist()[0]
 
     print(hover_reward(np.array(a[0:3]),
                        np.array(a[3:6]),
@@ -70,6 +70,8 @@ if __name__ == '__main__':
                        np.array(b[6:9]),
                        np.array(b[9:12]),
                        np.array([0., 0., 10.])))
+
+    #print(np.clip(5 * (1 - 2. * 98), -2, 3))
 
     # print(hover_reward(np.array([-1.729678297, -0.0012487256, 9.7895324748]),
     #                    np.array([6.2818577926, 3.6706919437, 3.5015792962]),

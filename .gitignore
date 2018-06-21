@@ -10,5 +10,4 @@ __pycache__
 *.npy
 *.pyc
 data.txt
-data.csv
-
+.~lock.data1.csv#
