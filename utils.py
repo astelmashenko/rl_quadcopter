@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+from math import pow
 
 
 def udacity_distance(x, y):
@@ -14,15 +15,15 @@ def eucl_distance(x, y):
 def hover_reward(pose, ang_pose, v, ang_v, target_pose):
     xy_reward = abs(pose[:2] - target_pose[:2]).sum()
     # reward for to be above target
-    x_reward = abs(pose[0] - target_pose[0]).sum()
-    y_reward = abs(pose[1] - target_pose[1]).sum()
-    z_reward = abs(pose[2] - target_pose[2]).sum()
+    x_reward = pow(abs(pose[0] - target_pose[0]).sum(), 1/4)
+    y_reward = pow(abs(pose[1] - target_pose[1]).sum(), 1/4)
+    z_reward = pow(abs(pose[2] - target_pose[2]).sum(), 1/4)
 
-    z_v = v[2]
+    z_v = pow(abs(v[2]), 1/4)
 
     xy_v = v[:2] / 2.
-    ang_xy_v = abs(ang_v[:2]).sum()
-    ang_pose = abs(ang_pose / (3 * 2 * np.pi)).sum()
+    ang_xy_v = pow(abs(ang_v[:2]).sum(), 1/4)
+    ang_pose = pow(abs(ang_pose / (3 * 2 * np.pi)).sum(), 1/4)
 
     reward = 0
     # np.clip(, -1, 1)
@@ -31,24 +32,24 @@ def hover_reward(pose, ang_pose, v, ang_v, target_pose):
     # reward += np.clip(5 * (1. - 2. * eucl_dist), -5, 5)
 
     # z distance
-    reward += np.clip(10 * (1 - 1. * z_reward), -1, 10)
+    reward += np.clip( (10 - 2.4 * z_reward), -1, 10)
     # xy distance
     # reward += np.clip(5 * (1 - 2. * xy_reward), -4, 3)
-    reward += np.clip(5 * (1 - 1. * x_reward), -1, 5)
-    reward += np.clip(5 * (1 - 1. * y_reward), -1, 5)
+    reward += np.clip((5 - 2.4 * x_reward), -1, 5)
+    reward += np.clip((5 - 2.4 * y_reward), -1, 5)
 
     # velocity
     # z velocity
-    reward += np.clip(10 * (1 - 1 * abs(z_v)), -1, 10)  # np.clip(10 * (1 - 3.0 * z_v), 10, -10)
+    reward += np.clip((10 - 2 * z_v), -1, 10)  # np.clip(10 * (1 - 3.0 * z_v), 10, -10)
     # xy velocity
     # reward -= abs(xy_v).sum()
 
     # angles
-    reward -= np.clip(1 - 0.8 * ang_pose, -1, 1)
+    reward -= np.clip(1 - 2 * ang_pose, -1, 1)
 
     # angle velocities
     # reward -= np.clip(ang_xy_v, -1, 1)
-    reward += np.clip(0.5 * ang_xy_v, -1, 1)
+    reward += np.clip(1 - 2 * ang_xy_v, -1, 1)
 
     # return np.clip(reward, -1, 1)
     return reward
