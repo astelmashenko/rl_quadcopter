@@ -14,6 +14,8 @@ def eucl_distance(x, y):
 def hover_reward(pose, ang_pose, v, ang_v, target_pose):
     xy_reward = abs(pose[:2] - target_pose[:2]).sum()
     # reward for to be above target
+    x_reward = abs(pose[0] - target_pose[0]).sum()
+    y_reward = abs(pose[1] - target_pose[1]).sum()
     z_reward = abs(pose[2] - target_pose[2]).sum()
 
     z_v = v[2]
@@ -29,29 +31,31 @@ def hover_reward(pose, ang_pose, v, ang_v, target_pose):
     # reward += np.clip(5 * (1. - 2. * eucl_dist), -5, 5)
 
     # z distance
-    reward += np.clip(10 * (1 - 3. * z_reward), -5, 10)
+    reward += np.clip(10 * (1 - .3 * z_reward), -1, 3)
     # xy distance
-    reward += np.clip(5 * (1 - 2. * xy_reward), -5, 3)
+    # reward += np.clip(5 * (1 - 2. * xy_reward), -4, 3)
+    reward += np.clip(2 * (1 - .3 * x_reward), -1, 2)
+    reward += np.clip(2 * (1 - .3 * y_reward), -1, 2)
 
     # velocity
     # z velocity
-    reward += np.clip(0.5 * z_v, -3, 3)  # np.clip(10 * (1 - 3.0 * z_v), 10, -10)
+    reward += np.clip(5 * (1 - 0.5 * abs(z_v)), -1, 5)  # np.clip(10 * (1 - 3.0 * z_v), 10, -10)
     # xy velocity
     # reward -= abs(xy_v).sum()
 
     # angles
-    reward += np.clip(1 - 0.8 * ang_pose, -1, 1)
+    reward -= np.clip(1 - 0.8 * ang_pose, -1, 1)
 
     # angle velocities
     # reward -= np.clip(ang_xy_v, -1, 1)
-    reward += np.clip(0.5 * ang_xy_v, -3, 3)
+    reward += np.clip(0.5 * ang_xy_v, -1, 1)
 
     # return np.clip(reward, -1, 1)
     return reward
 
 
 if __name__ == '__main__':
-    data = pd.read_csv('data.csv')
+    data = pd.read_csv('data1.csv')
     cols = ['x', 'y', 'z',
             'phi', 'theta', 'psi',
             'x_velocity', 'y_velocity', 'z_velocity',
