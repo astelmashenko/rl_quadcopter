@@ -26,24 +26,26 @@ class Critic:
         states = layers.Input(shape=(self.state_size,), name='states')
         actions = layers.Input(shape=(self.action_size,), name='actions')
 
+        untis_size = 32
+
         # Add hidden layer(s) for state pathway
-        net_states = layers.Dense(units=128)(states)
+        net_states = layers.Dense(units=untis_size)(states)
         net_states = layers.BatchNormalization()(net_states)
         net_states = layers.LeakyReLU()(net_states)
         net_states = layers.Dropout(0.1)(net_states)
         #
-        net_states = layers.Dense(units=128)(net_states)
+        net_states = layers.Dense(units=untis_size)(net_states)
         net_states = layers.BatchNormalization()(net_states)
         net_states = layers.LeakyReLU()(net_states)
         net_states = layers.Dropout(0.2)(net_states)
 
         # Add hidden layer(s) for action pathway
-        net_actions = layers.Dense(units=128)(actions)
+        net_actions = layers.Dense(units=untis_size)(actions)
         net_actions = layers.BatchNormalization()(net_actions)
         net_actions = layers.LeakyReLU()(net_actions)
         net_actions = layers.Dropout(0.1)(net_actions)
         #
-        net_actions = layers.Dense(units=128)(net_actions)
+        net_actions = layers.Dense(units=untis_size)(net_actions)
         net_actions = layers.BatchNormalization()(net_actions)
         net_actions = layers.LeakyReLU()(net_actions)
         net_actions = layers.Dropout(0.2)(net_actions)
@@ -56,7 +58,7 @@ class Critic:
         net = layers.Activation('relu')(net)
 
         # Add more layers to the combined network if needed
-        net = layers.Dense(units=128)(net)
+        net = layers.Dense(units=untis_size)(net)
         net = layers.BatchNormalization()(net)
         net = layers.LeakyReLU()(net)
         net = layers.Dropout(0.4)(net)

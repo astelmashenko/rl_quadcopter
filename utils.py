@@ -12,47 +12,51 @@ def eucl_distance(x, y):
     return np.linalg.norm(x - y)
 
 
+def remap(x, in_min, in_max, out_min=-1, out_max=1):
+  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
+
+
 def hover_reward(pose, ang_pose, v, ang_v, target_pose):
     xy_reward = abs(pose[:2] - target_pose[:2]).sum()
     # reward for to be above target
-    x_reward = pow(abs(pose[0] - target_pose[0]).sum(), 1/4)
-    y_reward = pow(abs(pose[1] - target_pose[1]).sum(), 1/4)
-    z_reward = pow(abs(pose[2] - target_pose[2]).sum(), 1/4)
+    x_reward = pow(abs(pose[0] - target_pose[0]).sum(), 1/3)
+    y_reward = pow(abs(pose[1] - target_pose[1]).sum(), 1/3)
+    z_reward = pow(abs(pose[2] - target_pose[2]).sum(), 1/3)
 
     z_v = pow(abs(v[2]), 1/4)
 
     xy_v = v[:2] / 2.
-    ang_xy_v = pow(abs(ang_v[:2]).sum(), 1/4)
-    ang_pose = pow(abs(ang_pose / (3 * 2 * np.pi)).sum(), 1/4)
+    ang_xy_v = pow(abs(ang_v[:2]).sum(), 1/3)
+    ang_pose = pow(abs(ang_pose / (3 * 2 * np.pi)).sum(), 1/2)
 
     reward = 0
     # np.clip(, -1, 1)
-    # eucl_dist = eucl_distance(pose, target_pose)
+    eucl_dist = eucl_distance(pose, target_pose)
     # penalize for distance increasing
-    # reward += np.clip(5 * (1. - 2. * eucl_dist), -5, 5)
+    reward += np.clip(weight_fun(3, 1, eucl_dist), -0.25, 3)
 
     # z distance
-    reward += np.clip(weight_fun(3.5, 1.9, z_reward), -0.5, 1.5)
+    reward += np.clip(weight_fun(3, 1, z_reward), -0.25, 3)
     # xy distance
     # reward += np.clip(5 * (1 - 2. * xy_reward), -4, 3)
-    reward += np.clip(weight_fun(3.5, 1.9, x_reward), -0.5, 1.5)
-    reward += np.clip(weight_fun(3.5, 1.9, y_reward), -0.5, 1.5)
+    reward += np.clip(weight_fun(3, 1, x_reward), -0.25, 3)
+    reward += np.clip(weight_fun(3, 1, y_reward), -0.25, 3)
 
     # velocity
     # z velocity
-    reward += np.clip(weight_fun(3, 1.9, z_v), -0.2, 2)  # np.clip(10 * (1 - 3.0 * z_v), 10, -10)
+    reward += np.clip(weight_fun(3, 2, z_v), -0.3, 1.4)  # np.clip(10 * (1 - 3.0 * z_v), 10, -10)
     # xy velocity
     # reward -= abs(xy_v).sum()
 
     # angles
-    reward -= np.clip(weight_fun(3, 1.9, ang_pose), -0.2, 1)
+    reward -= np.clip(weight_fun(1.4, 2, ang_pose), -0.3, 1.4)
 
     # angle velocities
     # reward -= np.clip(ang_xy_v, -1, 1)
     # reward += np.clip(1 - 2 * ang_xy_v, -1, 1)
 
     # return np.clip(reward, -0.2, 10)
-    return reward
+    return remap(reward, -1.6, 14.8, -1, 3)
 
 
 def weight_fun(a, b, x):
