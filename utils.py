@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-from math import pow
+from math import pow, log
 
 
 def udacity_distance(x, y):
@@ -19,44 +19,46 @@ def remap(x, in_min, in_max, out_min=-1, out_max=1):
 def hover_reward(pose, ang_pose, v, ang_v, target_pose):
     xy_reward = abs(pose[:2] - target_pose[:2]).sum()
     # reward for to be above target
-    x_reward = pow(abs(pose[0] - target_pose[0]).sum(), 1/3)
-    y_reward = pow(abs(pose[1] - target_pose[1]).sum(), 1/3)
-    z_reward = pow(abs(pose[2] - target_pose[2]).sum(), 1/3)
+    x_reward = log(abs(pose[0] - target_pose[0]).sum())
+    y_reward = log(abs(pose[1] - target_pose[1]).sum())
+    z_reward = log(abs(pose[2] - target_pose[2]).sum())
 
-    z_v = pow(abs(v[2]), 1/4)
+    z_v = log(abs(v[2]))
 
     xy_v = v[:2] / 2.
-    ang_xy_v = pow(abs(ang_v[:2]).sum(), 1/3)
-    ang_pose = pow(abs(ang_pose / (3 * 2 * np.pi)).sum(), 1/2)
+    ang_xyz_v = log(abs(ang_v[:3]).sum())
+    ang_pose = log(abs(ang_pose / (3 * 2 * np.pi)).sum())
 
     reward = 0
     # np.clip(, -1, 1)
-    eucl_dist = eucl_distance(pose, target_pose)
+    eucl_dist = log(eucl_distance(pose, target_pose))
     # penalize for distance increasing
-    reward += np.clip(weight_fun(3, 1, eucl_dist), -0.25, 3)
+    reward += np.clip(weight_fun(1, 0.3, eucl_dist), -0.25, 1)
 
     # z distance
-    reward += np.clip(weight_fun(3, 1, z_reward), -0.25, 3)
+    reward += np.clip(weight_fun(1, 0.3, z_reward), -0.25, 1)
     # xy distance
     # reward += np.clip(5 * (1 - 2. * xy_reward), -4, 3)
-    reward += np.clip(weight_fun(3, 1, x_reward), -0.25, 3)
-    reward += np.clip(weight_fun(3, 1, y_reward), -0.25, 3)
+    reward += np.clip(weight_fun(1, 0.3, x_reward), -0.25, 1)
+    reward += np.clip(weight_fun(1, 0.3, y_reward), -0.25, 1)
 
     # velocity
     # z velocity
-    reward += np.clip(weight_fun(3, 2, z_v), -0.3, 1.4)  # np.clip(10 * (1 - 3.0 * z_v), 10, -10)
+    reward += np.clip(weight_fun(1, 0.5, z_v), -0.3, 1)  # np.clip(10 * (1 - 3.0 * z_v), 10, -10)
     # xy velocity
     # reward -= abs(xy_v).sum()
 
     # angles
-    reward -= np.clip(weight_fun(1.4, 2, ang_pose), -0.3, 1.4)
+    reward -= np.clip(weight_fun(1.4, 0.5, ang_pose), -0.4, 1)
 
     # angle velocities
     # reward -= np.clip(ang_xy_v, -1, 1)
     # reward += np.clip(1 - 2 * ang_xy_v, -1, 1)
+    reward += np.clip(weight_fun(1.4, 0.5, ang_xyz_v), -0.4, 1)
 
     # return np.clip(reward, -0.2, 10)
-    return remap(reward, -1.6, 14.8, -1, 3)
+    # return remap(reward, -1.6, 10.8, -1, 3)
+    return reward
 
 
 def weight_fun(a, b, x):
@@ -64,38 +66,47 @@ def weight_fun(a, b, x):
 
 
 if __name__ == '__main__':
-    data = pd.read_csv('data1.csv')
-    cols = ['x', 'y', 'z',
-            'phi', 'theta', 'psi',
-            'x_velocity', 'y_velocity', 'z_velocity',
-            'phi_velocity', 'theta_velocity', 'psi_velocity']
-    a = data.iloc[[83]][cols].values.tolist()[0]
-    b = data.iloc[[1]][cols].values.tolist()[0]
-
-    print(hover_reward(np.array(a[0:3]),
-                       np.array(a[3:6]),
-                       np.array(a[6:9]),
-                       np.array(a[9:12]),
-                       np.array([0., 0., 10.])))
-
-    print(hover_reward(np.array(b[0:3]),
-                       np.array(b[3:6]),
-                       np.array(b[6:9]),
-                       np.array(b[9:12]),
-                       np.array([0., 0., 10.])))
+    # data = pd.read_csv('data1.csv')
+    # cols = ['x', 'y', 'z',
+    #         'phi', 'theta', 'psi',
+    #         'x_velocity', 'y_velocity', 'z_velocity',
+    #         'phi_velocity', 'theta_velocity', 'psi_velocity']
+    # a = data.iloc[[83]][cols].values.tolist()[0]
+    # b = data.iloc[[1]][cols].values.tolist()[0]
+    #
+    # print(hover_reward(np.array(a[0:3]),
+    #                    np.array(a[3:6]),
+    #                    np.array(a[6:9]),
+    #                    np.array(a[9:12]),
+    #                    np.array([0., 0., 10.])))
+    #
+    # print(hover_reward(np.array(b[0:3]),
+    #                    np.array(b[3:6]),
+    #                    np.array(b[6:9]),
+    #                    np.array(b[9:12]),
+    #                    np.array([0., 0., 10.])))
 
     #print(np.clip(5 * (1 - 2. * 98), -2, 3))
 
-    # print(hover_reward(np.array([-1.729678297, -0.0012487256, 9.7895324748]),
-    #                    np.array([6.2818577926, 3.6706919437, 3.5015792962]),
-    #                    np.array([-7.0731331709, -0.003506869, -8.2229779699]),
-    #                    np.array([-0.0053780827, -14.0411851482, -46.3242552138]),
-    #                    np.array([0., 0., 10.])))
-    # print(hover_reward(np.array([-2.1341031989, -0.0019159375, 9.2265339975]),
-    #                    np.array([6.2815543693, 0.5227153292, 2.2772053046]),
-    #                    np.array([-6.8387585351, -0.0125357532, -10.4270839967]),
-    #                    np.array([-0.0044241086, -37.2056547725, -43.3475728102]),
-    #                    np.array([0., 0., 10.])))
+    # pose, ang, v, ang_v
+
+    print(hover_reward(np.array([-1., 0.1, 9.]),
+                       np.array([6., 3., 3.]),
+                       np.array([-7., 0.1, -8.]),
+                       np.array([-0., -14., -46.]),
+                       np.array([0., 0., 10.])))
+
+    print(hover_reward(np.array([-2., -10., 9.]),
+                       np.array([6., 0., 2.]),
+                       np.array([-6., 0., -10.]),
+                       np.array([-0., -37., -43.]),
+                       np.array([0., 0., 10.])))
+
+    print(hover_reward(np.array([-2., -100., 9.]),
+                       np.array([6., 0., 2.]),
+                       np.array([-6., 0., -10.]),
+                       np.array([-0., -37., -43.]),
+                       np.array([0., 0., 10.])))
 
 
 def plots(results):
