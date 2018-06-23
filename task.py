@@ -85,10 +85,6 @@ class Task:
             done = self.sim.next_timestep(rotor_speeds)  # update the sim pose and velocities
             reward += self.get_reward()
             pose_all.append(self.sim.pose)
-            # # if we close enough to target position end
-            # if eucl <= 0.1:
-            #     reward += 100
-            #     done = True
 
         self.dist = self.eucl_distance()
         next_state = np.concatenate(pose_all)

@@ -35,8 +35,8 @@ class DDPG():
         self.noise = OUNoise(self.action_size, self.exploration_mu, self.exploration_theta, self.exploration_sigma)
 
         # Replay memory
-        self.buffer_size = 10000 #100000
-        self.batch_size = 512 # 64
+        self.buffer_size = 100000
+        self.batch_size = 2000 # 64
         self.memory = ReplayBuffer(self.buffer_size, self.batch_size)
 
         # Algorithm parameters
