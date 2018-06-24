@@ -26,7 +26,7 @@ class Critic:
         states = layers.Input(shape=(self.state_size,), name='states')
         actions = layers.Input(shape=(self.action_size,), name='actions')
 
-        untis_size = 512
+        untis_size = 128
 
         # Add hidden layer(s) for state pathway
         net_states = layers.Dense(units=untis_size)(states)

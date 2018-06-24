@@ -31,7 +31,7 @@ class Actor:
         states = layers.Input(shape=(self.state_size,), name='states')
 
         #
-        untis_size = 32
+        untis_size = 128
 
         # Add hidden layers
         net = layers.Dense(units=untis_size)(states)  # activation='relu'

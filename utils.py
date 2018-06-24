@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 from math import pow, log
+from sklearn.model_selection import ParameterSampler
 
 
 def udacity_distance(x, y):
@@ -13,60 +14,94 @@ def eucl_distance(x, y):
 
 
 def remap(x, in_min, in_max, out_min=-1, out_max=1):
-  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
+    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
 
 
-def hover_reward(pose, ang_pose, v, ang_v, target_pose):
-    xy_reward = abs(pose[:2] - target_pose[:2]).sum()
-    # reward for to be above target
-    x_reward = log(abs(pose[0] - target_pose[0]).sum())
-    y_reward = log(abs(pose[1] - target_pose[1]).sum())
-    z_reward = log(abs(pose[2] - target_pose[2]).sum())
+def eucl_distance_reward(x):
+    return np.clip(weight_fun(4, 2., log(x)), -6, 10)
 
-    # z_v = log(abs(v[2]))
-    z_v = v[2]
 
-    x_v = v[0]
-    y_v = v[1]
-    ang_xyz_v = log(abs(ang_v[:3]).sum())
-    ang_pose = log(abs(ang_pose / (3 * 2 * np.pi)).sum())
+def z_diff_reward(x):
+    return np.clip(weight_fun(4, 2., log(x)), -6, 5)
 
-    reward = 0
-    # np.clip(, -1, 1)
-    eucl_dist = log(eucl_distance(pose, target_pose))
-    # penalize for distance increasing
-    reward += np.clip(weight_fun(4, 1., eucl_dist), -1, 10)
 
-    # z distance
-    reward += np.clip(weight_fun(1.5, 0.4, z_reward), -1, 10)
-    # # xy distance
-    # # reward += np.clip(5 * (1 - 2. * xy_reward), -4, 3)
-    reward += np.clip(weight_fun(0, 0.4, x_reward), -1, 10)
-    reward += np.clip(weight_fun(0, 0.4, y_reward), -1, 10)
-    #
-    # # velocity
-    # # z velocity
-    # # reward += np.clip(weight_fun(1, 0.5, z_v), -0.4, 1)  # np.clip(10 * (1 - 3.0 * z_v), 10, -10)
-    # reward += np.clip(z_v, -0.4, 2)  # np.clip(10 * (1 - 3.0 * z_v), 10, -10)
-    # # xy velocity
-    # # reward += np.clip(x_v, -0.4, 1)
-    # # reward += np.clip(y_v, -0.4, 1)
-    #
-    # # angles
-    # reward -= np.clip(weight_fun(1, 2, ang_pose), -0.4, 1)
+def x_diff_reward(x):
+    return np.clip(weight_fun(4, 2., log(x)), -6, 4)
 
-    # angle velocities
-    # reward -= np.clip(ang_xy_v, -1, 1)
-    # reward += np.clip(1 - 2 * ang_xy_v, -1, 1)
-    reward += np.clip(weight_fun(1, 1, ang_xyz_v), -1, 1)
 
-    # return np.clip(reward, -0.2, 10)
-    # return remap(reward, -1.6, 10.8, -1, 3)
-    return reward
+def y_diff_reward(x):
+    return np.clip(weight_fun(4, 4., log(x)), -6, 4)
+
+
+def euler_angles_reward(x):
+    return np.clip(weight_fun(-2, 3., log(x)), -5, 3)
 
 
 def weight_fun(a, b, x):
     return a - b * x
+
+
+def hover_reward(pose, ang_pose, v, ang_v, target_pose):
+    x = abs(pose[0] - target_pose[0]).sum()
+    y = abs(pose[1] - target_pose[1]).sum()
+    z = abs(pose[2] - target_pose[2]).sum()
+    ang_xyz_v = abs(ang_v[:3]).sum()
+    euler_angles = abs(ang_pose / (3 * 2 * np.pi)).sum()
+
+    reward = 0
+    # np.clip(, -1, 1)
+    eucl_dist = eucl_distance(pose, target_pose)
+    reward += eucl_distance_reward(eucl_dist)
+
+    # z distance
+    reward += z_diff_reward(z)
+    # # xy distance
+    # # reward += np.clip(5 * (1 - 2. * xy_reward), -4, 3)
+    reward += x_diff_reward(x)
+    reward += y_diff_reward(y)
+    #
+    # # angles
+    reward += euler_angles_reward(euler_angles)
+
+    # reward += np.clip(weight_fun(1, 1, ang_xyz_v), -1, 1)
+    return reward
+
+
+
+def eucl_dist_test():
+    print('eucl dist test')
+    eucl_dists = [150, 100, 75, 50, 25, 10, 5, 1.1, 0.1]
+    for dist in eucl_dists:
+        print('%s\t:\t%s' % (dist, eucl_distance_reward(dist)))
+
+
+def z_axe_test():
+    print('z dist test')
+    zs = [0.1, 0.5, 1.1, 2, 5, 10, 50]
+    for z in zs:
+        print('%s\t:\t%s' % (z, z_diff_reward(z)))
+
+
+def x_axe_test():
+    print('x dist test')
+    xs = [0.1, 0.5, 1.1, 2, 5, 10, 50]
+    for x in xs:
+        print('%s\t:\t%s' % (x, x_diff_reward(x)))
+
+
+def y_axe_test():
+    print('y dist test')
+    ys = [0.1, 0.5, 1.1, 2, 5, 10, 50]
+    for y in ys:
+        print('%s\t:\t%s' % (y, y_diff_reward(y)))
+
+
+def euler_angles_test():
+    print('euler angles dist test')
+    angles = [0.1, 0.3, 0.4, 0.5, 1.1, 2, np.pi, 5, 2*np.pi]
+    for angle in angles:
+        print('%s\t:\t%s' % (angle, euler_angles_reward(angle)))
+
 
 
 if __name__ == '__main__':
@@ -90,9 +125,19 @@ if __name__ == '__main__':
     #                    np.array(b[9:12]),
     #                    np.array([0., 0., 10.])))
 
-    # print(np.clip(5 * (1 - 2. * 98), -2, 3))
+    eucl_dist_test()
+    z_axe_test()
+    x_axe_test()
+    y_axe_test()
+    euler_angles_test()
 
     # pose, ang, v, ang_v
+    target = np.array([0., 0., 50.])
+
+    param_grid = {'': [0.007, 0.01, 0.015],
+                  'alpha': [0.15, 0.2, 0.25],
+                  'gamma': [1.0, 0.9],
+                  'q_update': ['sarsamax', 'exp_sarsa0']}
 
     print(hover_reward(np.array([-1., 0.1, 9.]),
                        np.array([6., 3., 3.]),
