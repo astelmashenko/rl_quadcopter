@@ -18,11 +18,11 @@ def remap(x, in_min, in_max, out_min=-1, out_max=1):
 
 
 def eucl_distance_reward(x):
-    return np.clip(weight_fun(4, 2., log(x)), -5, 10)
+    return np.clip(weight_fun(6, 2.4, log(x)), -7, 15)
 
 
 def z_diff_reward(x):
-    return np.clip(weight_fun(4, 2., log(x)), -5, 5)
+    return np.clip(weight_fun(4, 2., log(x)), -5, 10)
 
 
 def x_diff_reward(x):
@@ -38,7 +38,7 @@ def euler_angles_reward(x):
 
 
 def velocities_reward(x):
-    return np.clip(weight_fun(3, 2., log(x)), -4, 7)
+    return np.clip(weight_fun(3, 2., log(x)), -4, 12)
 
 
 def weight_fun(a, b, x):
