@@ -68,7 +68,7 @@ class Task:
 
     def get_reward(self):
         if self.check_boundaries():
-            return -1000
+            return -70
         return hover_reward(self.sim.pose[:3], self.sim.pose[3:], self.sim.v, self.sim.angular_v, self.target_pos)
 
     def get_reward1(self):
