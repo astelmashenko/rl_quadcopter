@@ -36,7 +36,7 @@ class DDPG():
 
         # Replay memory
         self.buffer_size = 10000
-        self.batch_size = 1000 # 64
+        self.batch_size = 2000 # 64
         self.memory = ReplayBuffer(self.buffer_size, self.batch_size)
 
         # Algorithm parameters
