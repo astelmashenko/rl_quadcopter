@@ -37,6 +37,10 @@ def euler_angles_reward(x):
     return np.clip(weight_fun(-2, 3., log(x)), -5, 3)
 
 
+def velocities_reward(x):
+    return np.clip(weight_fun(3, 2., log(x)), -5, 10)
+
+
 def weight_fun(a, b, x):
     return a - b * x
 
@@ -45,7 +49,7 @@ def hover_reward(pose, ang_pose, v, ang_v, target_pose):
     x = abs(pose[0] - target_pose[0]).sum()
     y = abs(pose[1] - target_pose[1]).sum()
     z = abs(pose[2] - target_pose[2]).sum()
-    ang_xyz_v = abs(ang_v[:3]).sum()
+    z_v = abs(v[2])
     euler_angles = abs(ang_pose / (3 * 2 * np.pi)).sum()
 
     reward = 0
@@ -62,6 +66,8 @@ def hover_reward(pose, ang_pose, v, ang_v, target_pose):
     #
     # # angles
     reward += euler_angles_reward(euler_angles)
+
+    reward += velocities_reward(z_v)
 
     # reward += np.clip(weight_fun(1, 1, ang_xyz_v), -1, 1)
     return reward
@@ -103,6 +109,13 @@ def euler_angles_test():
         print('%s\t:\t%s' % (angle, euler_angles_reward(angle)))
 
 
+def velocities_reward_test():
+    print('velocities angles dist test')
+    vs = [0.1, 1, 2, 5, 10, 15, 20]
+    for v in vs:
+        print('%s\t:\t%s' % (v, velocities_reward(v)))
+
+
 
 if __name__ == '__main__':
     # data = pd.read_csv('data1.csv')
@@ -130,6 +143,7 @@ if __name__ == '__main__':
     x_axe_test()
     y_axe_test()
     euler_angles_test()
+    velocities_reward_test()
 
     # pose, ang, v, ang_v
     target = np.array([0., 0., 50.])
