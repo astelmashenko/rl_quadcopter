@@ -21,7 +21,7 @@ class Task:
         self.sim = PhysicsSim(init_pose, init_velocities, init_angle_velocities, runtime)
         self.action_repeat = 3
 
-        self.state_size = self.action_repeat * 6
+        self.state_size = self.action_repeat * 9 # 6
         self.action_low = 50  # 0
         self.action_high = 1000  # 900
         self.action_size = 4
@@ -85,6 +85,8 @@ class Task:
             done = self.sim.next_timestep(rotor_speeds)  # update the sim pose and velocities
             reward += self.get_reward()
             pose_all.append(self.sim.pose)
+            # added velocity to state
+            pose_all.append(self.sim.v)
 
         self.dist = self.eucl_distance()
         next_state = np.concatenate(pose_all)
@@ -93,6 +95,7 @@ class Task:
     def reset(self):
         """Reset the sim to start a new episode."""
         self.sim.reset()
-        state = np.concatenate([self.sim.pose] * self.action_repeat)
+        # added velocity to state
+        state = np.concatenate([self.sim.pose, self.sim.v] * self.action_repeat)
         self.dist = eucl_distance(self.sim.pose[:3], self.target_pos)
         return state

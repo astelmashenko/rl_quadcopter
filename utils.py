@@ -38,7 +38,7 @@ def euler_angles_reward(x):
 
 
 def velocities_reward(x):
-    return np.clip(weight_fun(3, 2., log(x)), -4, 14)
+    return np.clip(weight_fun(3, 2., log(x)), -4, 12)
 
 
 def weight_fun(a, b, x):
