@@ -38,7 +38,7 @@ def euler_angles_reward(x):
 
 
 def velocities_reward(x):
-    return np.clip(weight_fun(3, 2., log(x)), -15, 15)
+    return np.clip(weight_fun(2, 1., log(abs(x-3))), -2, 2)
 
 
 def weight_fun(a, b, x):
@@ -71,7 +71,7 @@ def hover_reward(pose, ang_pose, v, ang_v, target_pose):
 
     # reward += np.clip(weight_fun(1, 1, ang_xyz_v), -1, 1)
     # return reward
-    return remap(reward, -54, 54, -1, 1)
+    return remap(reward, -41, 41, -1, 1)
 
 
 
@@ -104,15 +104,15 @@ def y_axe_test():
 
 
 def euler_angles_test():
-    print('euler angles dist test')
+    print('euler angles test')
     angles = [0.1, 0.3, 0.4, 0.5, 1.1, 2, np.pi, 5, 2*np.pi]
     for angle in angles:
         print('%s\t:\t%s' % (angle, euler_angles_reward(angle)))
 
 
 def velocities_reward_test():
-    print('velocities angles dist test')
-    vs = [0.1, 1, 2, 5, 10, 15, 20]
+    print('velocities angles test')
+    vs = [-20, -10, -5, -1, 0.1, 1, 2, 5, 10, 15, 20]
     for v in vs:
         print('%s\t:\t%s' % (v, velocities_reward(v)))
 
