@@ -71,7 +71,7 @@ def hover_reward(pose, ang_pose, v, ang_v, target_pose):
 
     # reward += np.clip(weight_fun(1, 1, ang_xyz_v), -1, 1)
     # return reward
-    return remap(reward, -41, 41, -1, 1)
+    return remap(reward, -41, 41, -3, 3)
 
 
 
