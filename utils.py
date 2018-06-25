@@ -18,27 +18,27 @@ def remap(x, in_min, in_max, out_min=-1, out_max=1):
 
 
 def eucl_distance_reward(x):
-    return np.clip(weight_fun(6, 2.4, log(x)), -15, 15)
+    return np.clip(weight_fun(6, 2.4, log(x)), -6, 15)
 
 
 def z_diff_reward(x):
-    return np.clip(weight_fun(4, 2., log(x)), -10, 10)
+    return np.clip(weight_fun(4, 2., log(x)), -4, 10)
 
 
 def x_diff_reward(x):
-    return np.clip(weight_fun(4, 2., log(x)), -5, 5)
+    return np.clip(weight_fun(4, 2., log(x)), -4, 5)
 
 
 def y_diff_reward(x):
-    return np.clip(weight_fun(4, 4., log(x)), -5, 5)
+    return np.clip(weight_fun(4, 4., log(x)), -4, 5)
 
 
 def euler_angles_reward(x):
-    return np.clip(weight_fun(-2, 3., log(x)), -4, 4)
+    return np.clip(weight_fun(-2, 3., log(x)), -2, 4)
 
 
 def velocities_reward(x):
-    return np.clip(weight_fun(2, 1., log(abs(x-3))), -2, 2)
+    return np.clip(weight_fun(2, 1.4, log(abs(x-4))), -2, 2)
 
 
 def weight_fun(a, b, x):
@@ -71,7 +71,7 @@ def hover_reward(pose, ang_pose, v, ang_v, target_pose):
 
     # reward += np.clip(weight_fun(1, 1, ang_xyz_v), -1, 1)
     # return reward
-    return remap(reward, -41, 41, -3, 3)
+    return remap(reward, -22, 41, -2, 2)
 
 
 
