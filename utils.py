@@ -18,19 +18,19 @@ def remap(x, in_min, in_max, out_min=-1, out_max=1):
 
 
 def eucl_distance_reward(x):
-    return np.clip(weight_fun(6, 2.4, log(x)), -6, 15)
+    return np.clip(weight_fun(9., 3., log(x)), -6, 6)
 
 
 def z_diff_reward(x):
-    return np.clip(weight_fun(4, 2., log(x)), -4, 10)
+    return np.clip(weight_fun(9., 3., log(x)), -6, 6)
 
 
 def x_diff_reward(x):
-    return np.clip(weight_fun(4, 2., log(x)), -4, 5)
+    return np.clip(weight_fun(9., 3., log(x)), -6, 6)
 
 
 def y_diff_reward(x):
-    return np.clip(weight_fun(4, 4., log(x)), -4, 5)
+    return np.clip(weight_fun(9., 3., log(x)), -6, 6)
 
 
 def euler_angles_reward(x):
@@ -38,7 +38,7 @@ def euler_angles_reward(x):
 
 
 def velocities_reward(x):
-    return np.clip(weight_fun(2, 1.4, log(abs(x-4))), -2, 2)
+    return np.clip(weight_fun(2, 1.4, log(abs(x - 4.0001))), -2, 2)
 
 
 def weight_fun(a, b, x):
@@ -71,8 +71,7 @@ def hover_reward(pose, ang_pose, v, ang_v, target_pose):
 
     # reward += np.clip(weight_fun(1, 1, ang_xyz_v), -1, 1)
     # return reward
-    return remap(reward, -22, 41, -2, 2)
-
+    return remap(reward, -28, 30, -2, 2)
 
 
 def eucl_dist_test():
@@ -105,7 +104,7 @@ def y_axe_test():
 
 def euler_angles_test():
     print('euler angles test')
-    angles = [0.1, 0.3, 0.4, 0.5, 1.1, 2, np.pi, 5, 2*np.pi]
+    angles = [0.1, 0.3, 0.4, 0.5, 1.1, 2, np.pi, 5, 2 * np.pi]
     for angle in angles:
         print('%s\t:\t%s' % (angle, euler_angles_reward(angle)))
 
@@ -117,13 +116,20 @@ def velocities_reward_test():
         print('%s\t:\t%s' % (v, velocities_reward(v)))
 
 
-
 if __name__ == '__main__':
-    # data = pd.read_csv('data1.csv')
-    # cols = ['x', 'y', 'z',
-    #         'phi', 'theta', 'psi',
-    #         'x_velocity', 'y_velocity', 'z_velocity',
-    #         'phi_velocity', 'theta_velocity', 'psi_velocity']
+    data = pd.read_csv('data1.csv')
+    cols = ['x', 'y', 'z',
+            'phi', 'theta', 'psi',
+            'x_velocity', 'y_velocity', 'z_velocity',
+            'phi_velocity', 'theta_velocity', 'psi_velocity']
+    for i in range(data.shape[0]):
+        row = data.iloc[[i]][cols].values.tolist()[0]
+        print(hover_reward(np.array(row[0:3]),
+                           np.array(row[3:6]),
+                           np.array(row[6:9]),
+                           np.array(row[9:12]),
+                           np.array([0., 0., 75.])))
+
     # a = data.iloc[[10]][cols].values.tolist()[0]
     # b = data.iloc[[40]][cols].values.tolist()[0]
     #
